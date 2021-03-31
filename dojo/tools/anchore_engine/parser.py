@@ -37,7 +37,6 @@ class AnchoreEngineParser(object):
                 sev = 'Info'
 
             mitigation = "Upgrade to " + item['package_name'] + ' ' + item['fix'] + '\n'
-            mitigation += "URL: " + item['url'] + '\n'
 
             # rewrite references when we see an internal url
             # internal anchore servers run on port 8228 and will output such a link
