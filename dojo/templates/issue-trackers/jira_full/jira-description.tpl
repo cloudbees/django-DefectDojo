@@ -4,7 +4,6 @@
 {% url 'view_engagement' finding.test.engagement.id as engagement_url %}
 {% url 'view_test' finding.test.id as test_url %}
 {% url 'view_finding' finding.id as finding_url %}
-*Title*: [{{ finding.title|jiraencode}}|{{ finding_url|full_url }}]
 
 *Defect Dojo link:* {{ finding_url|full_url }} ({{ finding.id }})
 

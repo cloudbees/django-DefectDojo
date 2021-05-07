@@ -1,4 +1,5 @@
 import json
+import re
 
 from dojo.models import Finding
 
@@ -37,7 +38,6 @@ class AnchoreEngineParser(object):
                 sev = 'Info'
 
             mitigation = "Upgrade to " + item['package_name'] + ' ' + item['fix'] + '\n'
-            mitigation += "URL: " + item['url'] + '\n'
 
             cvssv3_base_score = None
             if item['feed'] == 'nvdv2' or item['feed'] == 'vulnerabilities':
@@ -54,6 +54,13 @@ class AnchoreEngineParser(object):
                             cvssv3_base_score = item['vendor_data'][1]['cvss_v3']['base_score']
 
             references = item['url']
+            urlpattern = re.compile(r'(.*:8228.*)(/vulnerabilities.*)')
+            if urlpattern.match(item['url']):
+                # only caring about prod for now
+                # from: http://anchore-anchore-engine-api:8228/v1/query/vulnerabilities?id=VULNDB-198882
+                # to: https://anchore.cloudbees.com/service/query/vulnerabilities?id=VULNDB-243350
+                anchore_prod_base = "https://anchore.cloudbees.com/service/query"
+                references = re.sub(urlpattern, anchore_prod_base + r'\2', item['url'])
 
             dupe_key = '|'.join([
                 item.get('image_digest', item.get('imageDigest', 'None')),  # depending on version image_digest/imageDigest
