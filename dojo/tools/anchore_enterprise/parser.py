@@ -46,7 +46,7 @@ class AnchoreEnterpriseParser:
                                     severity = map_gate_action_to_severity(row[6])
                                     policyid = row[8]
                                     policyname = policy_name(evaluation['detail']['policy']['policies'], policyid)
-                                    if policy_name == 'Software Checks':
+                                    if policyname == 'Software Checks':
                                         continue
                                     gate = row[3]
                                     triggerid = row[2]
@@ -58,7 +58,6 @@ class AnchoreEnterpriseParser:
                                         cve=cve,
                                         description=description,
                                         severity=severity,
-                                        numerical_severity=Finding.get_number_severity(severity),
                                         references="Policy ID: {}\nTrigger ID: {}".format(policyid, triggerid),
                                         file_path=search_filepath(description),
                                         component_name=repo,
