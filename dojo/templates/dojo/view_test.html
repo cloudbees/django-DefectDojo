@@ -5,6 +5,7 @@
 {% load static %}
 {% load humanize %}
 {% block add_styles %}
+    {{ block.super }}
     ul#select_by_severity a:hover, ul#bulk_edit a:hover {
     cursor: pointer;
     }
@@ -19,6 +20,7 @@
     }
 {% endblock %}
 {% block content %}
+    {{ block.super }}
     <div class="panel panel-default">
         <div class="panel-heading">
             <div class="clearfix">
@@ -670,13 +672,6 @@
                                             </a>
                                         </li>
                                         <li class="divider"></li>
-                                        {% endif %}
-                                    {% if finding|has_object_permission:"Finding_Edit" or user|is_authorized_for_staff:finding %}
-                                        <li role="presentation">
-                                            <a href="{% url 'manage_images' finding.id %}">
-                                                <i class="fa fa-file-image-o"></i> Manage Images
-                                            </a>
-                                        </li>
                                     {% endif %}
                                     {% if finding|has_object_permission:"Finding_Edit" or user|is_authorized_for_change:finding %}
                                         {% if finding.under_review and dojo_user in finding.reviewers.all or dojo_user == finding.review_requested_by and finding.under_review %}
@@ -798,10 +793,11 @@
                                 <i class="fa dojo-sup fa-sitemap has-popover" data-html="true" data-trigger="hover" data-content="
                                     {% for endpoint_status in finding.endpoint_status.all %}
                                         {% if endpoint_status.mitigated %}
-                                            &#10003; {{ endpoint_status.endpoint }}<br/>
+                                            &#10003;
                                         {% else %}
-                                            &#10005; {{ endpoint_status.endpoint }}<br/>
+                                            &#10005;
                                         {% endif %}
+                                         {{ endpoint_status.endpoint }}{% if endpoint.is_broken %} <span data-toggle="tooltip" title="Endpoint is broken. Check documentation for look for fix process" >&#128681;</span>{% endif %}<br/>
                                     {% endfor %}
                                 " data-placement="right" data-container="body" data-original-title="Endpoints ({{finding.active_endpoint_count}} Active, {{finding.mitigated_endpoint_count}} Mitigated)" title=""></i>
                               {% endif %}
@@ -985,6 +981,7 @@
     </div>
 
     <!--Cred Begin-->
+    {% if system_settings.enable_credentials %}
     <div class="row">
     <div class="col-md-12" id="cred">
         <div class="panel panel-default">
@@ -1078,6 +1075,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 <!--Cred end -->
 
 <!--Files beign -->
@@ -1126,6 +1124,7 @@
 </div>
 {% endblock %}
 {% block postscript %}
+    {{ block.super }}
     <script type="application/javascript" src="{% static "jquery.hotkeys/jquery.hotkeys.js" %}"></script>
     <script type="text/javascript" src="{% static "jquery-highlight/jquery.highlight.js" %}"></script>
     <script type="text/javascript">

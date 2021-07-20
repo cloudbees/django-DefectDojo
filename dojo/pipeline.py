@@ -3,10 +3,10 @@ import gitlab
 from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from dojo.models import Engagement, Product, Product_Member, Product_Type, Test
+from dojo.models import Engagement, Product, Product_Member, Product_Type, Test, Role
 from social_core.backends.azuread_tenant import AzureADTenantOAuth2
 from social_core.backends.google import GoogleOAuth2
-from dojo.authorization.roles_permissions import Permissions
+from dojo.authorization.roles_permissions import Permissions, Roles
 from dojo.product.queries import get_authorized_products
 
 
@@ -75,7 +75,7 @@ def update_product_access(backend, uid, user=None, social=None, *args, **kwargs)
         # Get user's projects list on Gitlab
         gl = gitlab.Gitlab(settings.SOCIAL_AUTH_GITLAB_API_URL, oauth_token=token)
         # Get each project path_with_namespace as future product name
-        projects = gl.projects.list(membership=True, all=True)
+        projects = gl.projects.list(membership=True, min_access_level=settings.GITLAB_PROJECT_MIN_ACCESS_LEVEL, all=True)
         project_names = [project.path_with_namespace for project in projects]
         # Create product_type if necessary
         product_type, created = Product_Type.objects.get_or_create(name='Gitlab Import')
@@ -88,11 +88,7 @@ def update_product_access(backend, uid, user=None, social=None, *args, **kwargs)
                     product.authorized_users.add(user)
                     product.save()
                 else:
-                    product_member, created = Product_Member.objects.get_or_create(product=product, user=user)
-                    if created:
-                        # Make product member an Owner of the product
-                        product_member.role = 4
-                        product_member.save()
+                    product_member, created = Product_Member.objects.get_or_create(product=product, user=user, defaults={'role': Role.objects.get(id=Roles.Owner)})
 
         # For each product: if user is not project member any more, remove him from product's authorized users
         for product_name in user_product_names:
